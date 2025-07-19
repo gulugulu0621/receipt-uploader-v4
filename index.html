@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>上傳進貨收據</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; text-align: center; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h2>📷 上傳收據圖片 → 自動填寫 Google 試算表</h2>
+  <input type="file" accept="image/*" id="imageInput"><br>
+  <button onclick="uploadImage()">📤 上傳圖片</button>
+  <p id="status"></p>
+
+  <script>
+    async function uploadImage() {
+      const fileInput = document.getElementById('imageInput');
+      const status = document.getElementById('status');
+      if (!fileInput.files.length) return alert("請選擇圖片");
+
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const imageBase64 = reader.result;
+        const payload = {
+          token: "MY_SECURE_TOKEN_Boos58609225*",
+          imageBase64
+        };
+        try {
+          const response = await fetch("https://script.google.com/macros/s/AKfycbwl_T9eprSiup5z1JIjRiyUTq6Ip3UHagKD3wV9dkRnp9M-bjXdLyf1wPZdNTY2KsUVFg/exec", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          status.innerText = result.status === "success" ? "✅ 上傳成功！" : "❌ 錯誤：" + result.message;
+        } catch (err) {
+          status.innerText = "❌ Failed to fetch：" + err.message;
+        }
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    }
+  </script>
+</body>
+</html>
